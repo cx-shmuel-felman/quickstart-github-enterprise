@@ -87,9 +87,13 @@ Conditions:
   GovCloudCondition: !Equals
     - !Ref 'AWS::Region'
     - us-gov-west-1
-  Io1Set: !Equals
-    - !Ref 'VolumeType'
-    - io1
+  Io1Set: !Or
+    - !Equals
+      - !Ref 'VolumeType'
+      - io1
+    - !Equals
+      - !Ref 'VolumeType'
+      - io2
   UsingDefaultBucket: !Equals [!Ref QSS3BucketName, 'aws-quickstart']
 Mappings:
   AWSAMIRegionMap:
@@ -172,26 +176,38 @@ Parameters:
     Type: String
   InstanceType:
     AllowedValues:
-      - m3.xlarge
-      - m3.2xlarge
-      - m4.xlarge
-      - m4.2xlarge
-      - c3.2xlarge
-      - c3.4xlarge
-      - c3.8xlarge
-      - c4.2xlarge
-      - c4.4xlarge
-      - c4.8xlarge
-      - r3.large
-      - r3.xlarge
-      - r3.2xlarge
-      - r3.4xlarge
-      - r3.8xlarge
+      - m7i.large
+      - m7i.xlarge
+      - m7i.2xlarge
+      - m7i.4xlarge
+      - m7i.8xlarge
+      - m7a.large
+      - m7a.xlarge
+      - m7a.2xlarge
+      - m7a.4xlarge
+      - m7a.8xlarge
+      - c7i.xlarge
+      - c7i.2xlarge
+      - c7i.4xlarge
+      - c7i.8xlarge
+      - c7a.xlarge
+      - c7a.2xlarge
+      - c7a.4xlarge
+      - c7a.8xlarge
+      - r7i.large
+      - r7i.xlarge
+      - r7i.2xlarge
+      - r7i.4xlarge
+      - r7i.8xlarge
+      - r7a.large
+      - r7a.xlarge
+      - r7a.2xlarge
+      - r7a.4xlarge
+      - r7a.8xlarge
     ConstraintDescription: >-
-      must be a valid EC2 instance type for GitHub Enterprise: m3.xlarge, m3.2xlarge,
-      m4.xlarge, m4.2xlarge, c3.2xlarge, c3.4xlarge, c3.8xlarge, c4.2xlarge, c4.4xlarge,
-      c4.8xlarge, r3.large, r3.xlarge, r3.xlarge, r3.2xlarge, r3.4xlarge, or r3.8xlarge.
-    Default: m3.xlarge
+      must be a valid EC2 instance type for GitHub Enterprise. Current generation instances
+      include M7i/M7a (general purpose), C7i/C7a (compute optimized), and R7i/R7a (memory optimized).
+    Default: m7i.xlarge
     Description: WebServer EC2 instance type
     Type: String
   KeyPairName:
@@ -214,7 +230,7 @@ Parameters:
   ProvisionedIops:
     ConstraintDescription: Range is 100 to 20000 for Provisioned IOPS SSD volumes
     Description: Set the provisioned IOPs between 100 and 20000. Only set if you are
-      choosing io1 for your volume type
+      choosing io1 or io2 for your volume type
     Type: String
   QSS3BucketName:
     AllowedPattern: ^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$
@@ -269,10 +285,12 @@ Parameters:
     Type: String
   VolumeType:
     AllowedValues:
+      - gp3
+      - io2
       - gp2
       - io1
-    Description: Choose either GP2 or IO1. IO1 is recommended for more than 500 users
-    Default: gp2
+    Description: Choose GP3 (recommended), IO2 (for high IOPS), or legacy GP2/IO1. GP3 offers better performance than GP2. IO2 is recommended for more than 500 users
+    Default: gp3
     Type: String
 Resources:
   GHECloudWatchAlarmInstanceRecovery:
