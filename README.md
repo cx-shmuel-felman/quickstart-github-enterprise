@@ -193,21 +193,7 @@ GitHub Enterprise Server AMIs are available in the following AWS regions:
 
 ### Step 3: Prepare CloudFormation Templates
 
-1. **Download Templates**:
-   ```bash
-   # Create directory for templates
-   mkdir -p github-enterprise-deployment
-   cd github-enterprise-deployment
-
-   # Download CloudFormation templates
-   curl -O https://raw.githubusercontent.com/aws-quickstart/quickstart-github-enterprise/main/templates/quickstart-github-enterprise-master.template
-   curl -O https://raw.githubusercontent.com/aws-quickstart/quickstart-github-enterprise/main/templates/quickstart-github-enterprise.template
-   curl -O https://raw.githubusercontent.com/aws-quickstart/quickstart-github-enterprise/main/templates/quickstart-github-enterprise-single-az-vpc.template
-
-   echo "Templates downloaded successfully"
-   ```
-
-2. **Create S3 Bucket for Templates** (Required for Master Template):
+1. **Create S3 Bucket for Templates** (Required for Master Template):
    ```bash
    # The master template requires nested templates to be stored in S3
    # Create a bucket for storing CloudFormation templates
@@ -224,7 +210,7 @@ GitHub Enterprise Server AMIs are available in the following AWS regions:
    echo "Templates bucket created: $TEMPLATES_BUCKET"
    ```
 
-3. **Upload Templates to S3**:
+2. **Upload Templates to S3**:
    ```bash
    # Upload all templates to S3 (required for the master template to work)
    aws s3 cp quickstart-github-enterprise-master.template s3://$TEMPLATES_BUCKET/templates/
@@ -237,18 +223,6 @@ GitHub Enterprise Server AMIs are available in the following AWS regions:
    aws s3api put-object-acl --bucket $TEMPLATES_BUCKET --key templates/quickstart-github-enterprise-single-az-vpc.template --acl public-read
 
    echo "Templates uploaded and configured for CloudFormation access"
-   ```
-
-4. **Alternative: Use AWS QuickStart Public Bucket** (Optional):
-   ```bash
-   # Instead of creating your own bucket, you can use the default AWS QuickStart bucket
-   # This is simpler but requires the templates to be available in the public QuickStart repository
-   # If using this option, skip the bucket creation and upload steps above
-
-   export TEMPLATES_BUCKET="aws-quickstart"
-   export QS_KEY_PREFIX="quickstart-github-enterprise/"
-
-   echo "Using AWS QuickStart public bucket (templates must be publicly available)"
    ```
 
 ### Step 4: Set Deployment Parameters
