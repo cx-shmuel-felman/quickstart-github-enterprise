@@ -235,7 +235,7 @@ GitHub Enterprise Server AMIs are available in the following AWS regions:
    export SITE_ADMIN_EMAIL="admin@yourcompany.com"
    export SITE_ADMIN_PASSWORD="YourSecurePassword123!"  # Must meet complexity requirements
    export MANAGEMENT_PASSWORD="YourManagementPassword123!"  # Must meet complexity requirements
-   export ACCESS_CIDR="$MY_PUBLIC_IP/32"  # Your IP only, or your organization's IP range
+   export ACCESS_CIDR="31.168.164.190/32"  # Office IP only
 
    # Optional parameters with defaults
    export INSTANCE_TYPE="m7i.xlarge"

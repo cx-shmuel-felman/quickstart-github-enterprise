@@ -481,11 +481,11 @@ Resources:
           FromPort: 161
           IpProtocol: udp
           ToPort: 161
-        - CidrIp: !Ref 'AccessCIDR'
+        - CidrIp: '0.0.0.0/0'
           FromPort: 443
           IpProtocol: tcp
           ToPort: 443
-        - CidrIp: !Ref 'AccessCIDR'
+        - CidrIp: '0.0.0.0/0'
           FromPort: 80
           IpProtocol: tcp
           ToPort: 80
