@@ -343,7 +343,7 @@ Choose your deployment option based on your infrastructure needs:
    # Deploy using the existing VPC template
    aws cloudformation create-stack \
      --stack-name $STACK_NAME \
-     --template-body file://quickstart-github-enterprise.template \
+     --template-url https://$QS_S3_BUCKET.s3.$AWS_REGION.amazonaws.com/$QS_S3_KEY_PREFIX/quickstart-github-enterprise-master.template \
      --parameters \
        ParameterKey=KeyPairName,ParameterValue=$KEY_PAIR_NAME \
        ParameterKey=VPCID,ParameterValue=$EXISTING_VPC_ID \
