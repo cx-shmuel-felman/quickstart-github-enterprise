@@ -217,10 +217,10 @@ GitHub Enterprise Server AMIs are available in the following AWS regions:
    aws s3 cp quickstart-github-enterprise.template s3://$TEMPLATES_BUCKET/templates/
    aws s3 cp quickstart-github-enterprise-single-az-vpc.template s3://$TEMPLATES_BUCKET/templates/
 
-   # Make templates publicly readable (required for CloudFormation access)
-   aws s3api put-object-acl --bucket $TEMPLATES_BUCKET --key templates/quickstart-github-enterprise-master.template --acl public-read
-   aws s3api put-object-acl --bucket $TEMPLATES_BUCKET --key templates/quickstart-github-enterprise.template --acl public-read
-   aws s3api put-object-acl --bucket $TEMPLATES_BUCKET --key templates/quickstart-github-enterprise-single-az-vpc.template --acl public-read
+   # Upload template files to S3
+   aws s3api put-object --bucket $TEMPLATES_BUCKET --key templates/quickstart-github-enterprise-master.template --body templates/quickstart-github-enterprise-master.template
+   aws s3api put-object --bucket $TEMPLATES_BUCKET --key templates/quickstart-github-enterprise.template --body templates/quickstart-github-enterprise.template
+   aws s3api put-object --bucket $TEMPLATES_BUCKET --key templates/quickstart-github-enterprise-single-az-vpc.template --body templates/quickstart-github-enterprise-single-az-vpc.template
 
    echo "Templates uploaded and configured for CloudFormation access"
    ```
