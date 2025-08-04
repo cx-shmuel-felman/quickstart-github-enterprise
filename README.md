@@ -294,10 +294,10 @@ Choose your deployment option based on your infrastructure needs:
        ParameterKey=VPCCIDR,ParameterValue=$VPC_CIDR \
        ParameterKey=LicenseLocation,ParameterValue=$LICENSE_BUCKET \
        ParameterKey=GHELicense,ParameterValue=$LICENSE_FILE \
-       ParameterKey=SiteAdminUsername,ParameterValue=$SITE_ADMIN_USERNAME \
-       ParameterKey=SiteAdminUserEmail,ParameterValue=$SITE_ADMIN_EMAIL \
-       ParameterKey=SiteAdminUserPassword,ParameterValue=$SITE_ADMIN_PASSWORD \
-       ParameterKey=ManagementPassword,ParameterValue=$MANAGEMENT_PASSWORD \
+       ParameterKey=SiteAdminUsername,ParameterValue="$SITE_ADMIN_USERNAME" \
+       ParameterKey=SiteAdminUserEmail,ParameterValue="$SITE_ADMIN_EMAIL" \
+       ParameterKey=SiteAdminUserPassword,ParameterValue="$SITE_ADMIN_PASSWORD" \
+       ParameterKey=ManagementPassword,ParameterValue="$MANAGEMENT_PASSWORD" \
        ParameterKey=InstanceType,ParameterValue=$INSTANCE_TYPE \
        ParameterKey=VolumeType,ParameterValue=$VOLUME_TYPE \
        ParameterKey=VolumeSize,ParameterValue=$VOLUME_SIZE \
