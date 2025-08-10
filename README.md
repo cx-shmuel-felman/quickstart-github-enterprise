@@ -87,7 +87,7 @@ GitHub Enterprise Server AMIs are available in the following AWS regions:
    echo "Using AWS Region: $AWS_REGION"
 
    # Set the CloudFormation role to assume for deployments
-   export CF_ROLE_ARN="arn:aws:iam::$(aws sts get-caller-identity --query Account --output text):role/AWSServiceRoleForCloudFormationStackSetsOrgMember"
+   export CF_ROLE_ARN="arn:aws:iam::$(aws sts get-caller-identity --query Account --output text):role/CloudFormation-Role"
 
    # Verify that the role exists
    aws iam get-role --role-name AWSServiceRoleForCloudFormationStackSetsOrgMember &>/dev/null && \
