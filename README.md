@@ -206,6 +206,9 @@ GitHub Enterprise Server AMIs are available in the following AWS regions:
    # The master template requires nested templates to be stored in S3
    # Create a bucket for storing CloudFormation templates
    export TEMPLATES_BUCKET="github-enterprise-templates-$(aws sts get-caller-identity --query Account --output text)-$(date +%Y%m%d)"
+   export QS_S3_BUCKET="$TEMPLATES_BUCKET"  # Use your custom bucket or "aws-quickstart"
+   export QSQS_S3_KEY_PREFIX="quickstart-github-enterprise/"
+   export QS_S3_KEY_PREFIX="quickstart-github-enterprise/" # "quickstart-github-enterprise/" for aws-quickstart bucket
 
    # Create S3 bucket for templates
    aws s3 mb s3://$TEMPLATES_BUCKET --region $AWS_REGION
@@ -221,14 +224,11 @@ GitHub Enterprise Server AMIs are available in the following AWS regions:
 2. **Upload Templates to S3**:
    ```bash
    # Upload all templates to S3 (required for the master template to work)
-   aws s3 cp quickstart-github-enterprise-master.template s3://$TEMPLATES_BUCKET/templates/
-   aws s3 cp quickstart-github-enterprise.template s3://$TEMPLATES_BUCKET/templates/
-   aws s3 cp quickstart-github-enterprise-single-az-vpc.template s3://$TEMPLATES_BUCKET/templates/
 
    # Upload template files to S3
-   aws s3api put-object --bucket $TEMPLATES_BUCKET --key templates/quickstart-github-enterprise-master.template --body templates/quickstart-github-enterprise-master.template
-   aws s3api put-object --bucket $TEMPLATES_BUCKET --key templates/quickstart-github-enterprise.template --body templates/quickstart-github-enterprise.template
-   aws s3api put-object --bucket $TEMPLATES_BUCKET --key templates/quickstart-github-enterprise-single-az-vpc.template --body templates/quickstart-github-enterprise-single-az-vpc.template
+   aws s3api put-object --bucket $TEMPLATES_BUCKET --key ${QSQS_S3_KEY_PREFIX}templates/quickstart-github-enterprise-master.template --body templates/quickstart-github-enterprise-master.template
+   aws s3api put-object --bucket $TEMPLATES_BUCKET --key ${QSQS_S3_KEY_PREFIX}templates/quickstart-github-enterprise.template --body templates/quickstart-github-enterprise.template
+   aws s3api put-object --bucket $TEMPLATES_BUCKET --key ${QSQS_S3_KEY_PREFIX}templates/quickstart-github-enterprise-single-az-vpc.template --body templates/quickstart-github-enterprise-single-az-vpc.template
 
    echo "Templates uploaded and configured for CloudFormation access"
    ```
@@ -255,7 +255,6 @@ GitHub Enterprise Server AMIs are available in the following AWS regions:
 
    # Template-related parameters (set based on your bucket choice above)
    export QS_S3_BUCKET="$TEMPLATES_BUCKET"  # Use your custom bucket or "aws-quickstart"
-   export QS_S3_KEY_PREFIX="templates/"     # "quickstart-github-enterprise/" for aws-quickstart bucket
 
    echo "Deployment parameters set:"
    echo "  Stack Name: $STACK_NAME"
