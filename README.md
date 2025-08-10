@@ -207,7 +207,6 @@ GitHub Enterprise Server AMIs are available in the following AWS regions:
    # Create a bucket for storing CloudFormation templates
    export TEMPLATES_BUCKET="github-enterprise-templates-$(aws sts get-caller-identity --query Account --output text)-$(date +%Y%m%d)"
    export QS_S3_BUCKET="$TEMPLATES_BUCKET"  # Use your custom bucket or "aws-quickstart"
-   export QSQS_S3_KEY_PREFIX="quickstart-github-enterprise/"
    export QS_S3_KEY_PREFIX="quickstart-github-enterprise/" # "quickstart-github-enterprise/" for aws-quickstart bucket
 
    # Create S3 bucket for templates
@@ -226,9 +225,9 @@ GitHub Enterprise Server AMIs are available in the following AWS regions:
    # Upload all templates to S3 (required for the master template to work)
 
    # Upload template files to S3
-   aws s3api put-object --bucket $TEMPLATES_BUCKET --key ${QSQS_S3_KEY_PREFIX}templates/quickstart-github-enterprise-master.template --body templates/quickstart-github-enterprise-master.template
-   aws s3api put-object --bucket $TEMPLATES_BUCKET --key ${QSQS_S3_KEY_PREFIX}templates/quickstart-github-enterprise.template --body templates/quickstart-github-enterprise.template
-   aws s3api put-object --bucket $TEMPLATES_BUCKET --key ${QSQS_S3_KEY_PREFIX}templates/quickstart-github-enterprise-single-az-vpc.template --body templates/quickstart-github-enterprise-single-az-vpc.template
+   aws s3api put-object --bucket $TEMPLATES_BUCKET --key ${QS_S3_KEY_PREFIX}templates/quickstart-github-enterprise-master.template --body templates/quickstart-github-enterprise-master.template
+   aws s3api put-object --bucket $TEMPLATES_BUCKET --key ${QS_S3_KEY_PREFIX}templates/quickstart-github-enterprise.template --body templates/quickstart-github-enterprise.template
+   aws s3api put-object --bucket $TEMPLATES_BUCKET --key ${QS_S3_KEY_PREFIX}templates/quickstart-github-enterprise-single-az-vpc.template --body templates/quickstart-github-enterprise-single-az-vpc.template
 
    echo "Templates uploaded and configured for CloudFormation access"
    ```
@@ -294,7 +293,7 @@ Choose your deployment option based on your infrastructure needs:
    # Deploy using the master template (creates VPC + GitHub Enterprise)
    aws cloudformation create-stack \
      --stack-name $STACK_NAME \
-     --template-url https://$QS_S3_BUCKET.s3.$AWS_REGION.amazonaws.com/${QS_S3_KEY_PREFIX}quickstart-github-enterprise-master.template \
+     --template-url https://$QS_S3_BUCKET.s3.$AWS_REGION.amazonaws.com/${QS_S3_KEY_PREFIX}templates/quickstart-github-enterprise-master.template \
      --parameters \
        ParameterKey=KeyPairName,ParameterValue=$KEY_PAIR_NAME \
        ParameterKey=AccessCIDR,ParameterValue=$ACCESS_CIDR \
@@ -351,7 +350,7 @@ Choose your deployment option based on your infrastructure needs:
    # Deploy using the existing VPC template
    aws cloudformation create-stack \
      --stack-name $STACK_NAME \
-     --template-url https://$QS_S3_BUCKET.s3.$AWS_REGION.amazonaws.com/$QS_S3_KEY_PREFIX/quickstart-github-enterprise-master.template \
+     --template-url https://$QS_S3_BUCKET.s3.$AWS_REGION.amazonaws.com/${QS_S3_KEY_PREFIX}templates/quickstart-github-enterprise-master.template \
      --parameters \
        ParameterKey=KeyPairName,ParameterValue=$KEY_PAIR_NAME \
        ParameterKey=VPCID,ParameterValue=$EXISTING_VPC_ID \
