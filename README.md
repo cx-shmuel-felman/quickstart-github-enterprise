@@ -85,6 +85,14 @@ GitHub Enterprise Server AMIs are available in the following AWS regions:
    # Set your deployment region (adjust as needed)
    export AWS_REGION=us-east-1
    echo "Using AWS Region: $AWS_REGION"
+
+   # Set the CloudFormation role to assume for deployments
+   export CF_ROLE_ARN="arn:aws:iam::$(aws sts get-caller-identity --query Account --output text):role/AWSServiceRoleForCloudFormationStackSetsOrgMember"
+
+   # Verify that the role exists
+   aws iam get-role --role-name AWSServiceRoleForCloudFormationStackSetsOrgMember &>/dev/null && \
+     echo "✅ CloudFormation role exists: $CF_ROLE_ARN" || \
+     echo "❌ CloudFormation role does not exist, please create it first"
    ```
 
 2. **Get Your Public IP for Security**:
@@ -307,6 +315,7 @@ Choose your deployment option based on your infrastructure needs:
        ParameterKey=QSS3BucketRegion,ParameterValue=$AWS_REGION \
        ParameterKey=QSS3KeyPrefix,ParameterValue=$QS_S3_KEY_PREFIX \
      --capabilities CAPABILITY_IAM \
+     --role-arn $CF_ROLE_ARN \
      --region $AWS_REGION
 
    echo "CloudFormation stack deployment initiated: $STACK_NAME"
@@ -361,6 +370,7 @@ Choose your deployment option based on your infrastructure needs:
        ParameterKey=InitialOrganization,ParameterValue=$INITIAL_ORG \
        ParameterKey=InitialRepository,ParameterValue=$INITIAL_REPO \
      --capabilities CAPABILITY_IAM \
+     --role-arn $CF_ROLE_ARN \
      --region $AWS_REGION
 
    echo "CloudFormation stack deployment initiated: $STACK_NAME"
@@ -374,12 +384,14 @@ Choose your deployment option based on your infrastructure needs:
    # Check stack status
    aws cloudformation describe-stacks \
      --stack-name $STACK_NAME \
+     --role-arn $CF_ROLE_ARN \
      --query 'Stacks[0].StackStatus' \
      --output text
 
    # Watch stack events in real-time
    aws cloudformation describe-stack-events \
      --stack-name $STACK_NAME \
+     --role-arn $CF_ROLE_ARN \
      --query 'StackEvents[0:10].[Timestamp,ResourceStatus,ResourceType,LogicalResourceId]' \
      --output table
    ```
@@ -387,7 +399,7 @@ Choose your deployment option based on your infrastructure needs:
 2. **Continuous Monitoring** (Run in separate terminal):
    ```bash
    # Monitor deployment progress (updates every 30 seconds)
-   watch -n 30 "aws cloudformation describe-stacks --stack-name $STACK_NAME --query 'Stacks[0].StackStatus' --output text"
+   watch -n 30 "aws cloudformation describe-stacks --stack-name $STACK_NAME --role-arn $CF_ROLE_ARN --query 'Stacks[0].StackStatus' --output text"
    ```
 
 3. **View Deployment Progress in Console**:
@@ -399,12 +411,13 @@ Choose your deployment option based on your infrastructure needs:
 4. **Check for Deployment Completion**:
    ```bash
    # Wait for stack creation to complete
-   aws cloudformation wait stack-create-complete --stack-name $STACK_NAME
+   aws cloudformation wait stack-create-complete --stack-name $STACK_NAME --role-arn $CF_ROLE_ARN
    echo "Stack creation completed!"
 
    # Get final stack status
    aws cloudformation describe-stacks \
      --stack-name $STACK_NAME \
+     --role-arn $CF_ROLE_ARN \
      --query 'Stacks[0].[StackStatus,CreationTime]' \
      --output table
    ```
@@ -416,22 +429,26 @@ Choose your deployment option based on your infrastructure needs:
    # Get all stack outputs
    aws cloudformation describe-stacks \
      --stack-name $STACK_NAME \
+     --role-arn $CF_ROLE_ARN \
      --query 'Stacks[0].Outputs' \
      --output table
 
    # Get specific values
    export GHE_PUBLIC_IP=$(aws cloudformation describe-stacks \
      --stack-name $STACK_NAME \
+     --role-arn $CF_ROLE_ARN \
      --query 'Stacks[0].Outputs[?OutputKey==`PublicIP`].OutputValue' \
      --output text)
 
    export GHE_URL=$(aws cloudformation describe-stacks \
      --stack-name $STACK_NAME \
+     --role-arn $CF_ROLE_ARN \
      --query 'Stacks[0].Outputs[?OutputKey==`GHEURL`].OutputValue' \
      --output text)
 
    export GHE_INSTANCE_ID=$(aws cloudformation describe-stacks \
      --stack-name $STACK_NAME \
+     --role-arn $CF_ROLE_ARN \
      --query 'Stacks[0].Outputs[?OutputKey==`EC2InstanceId`].OutputValue' \
      --output text)
 
@@ -650,10 +667,10 @@ echo "Secrets Manager Key: github-enterprise/ssh-key/$KEY_PAIR_NAME"
 ### 2. Delete CloudFormation Stack
 ```bash
 # Delete the CloudFormation stack (this removes EC2, VPC, etc.)
-aws cloudformation delete-stack --stack-name $STACK_NAME
+aws cloudformation delete-stack --stack-name $STACK_NAME --role-arn $CF_ROLE_ARN
 
 # Wait for deletion to complete
-aws cloudformation wait stack-delete-complete --stack-name $STACK_NAME
+aws cloudformation wait stack-delete-complete --stack-name $STACK_NAME --role-arn $CF_ROLE_ARN
 echo "Stack deletion completed"
 ```
 
@@ -692,7 +709,7 @@ echo "Local cleanup completed"
 ### 4. Verify Cleanup
 ```bash
 # Verify stack is deleted
-aws cloudformation describe-stacks --stack-name $STACK_NAME 2>&1 | grep -q "does not exist" && echo "✓ Stack deleted" || echo "✗ Stack still exists"
+aws cloudformation describe-stacks --stack-name $STACK_NAME --role-arn $CF_ROLE_ARN 2>&1 | grep -q "does not exist" && echo "✓ Stack deleted" || echo "✗ Stack still exists"
 
 # Verify key pair is deleted
 aws ec2 describe-key-pairs --key-names $KEY_PAIR_NAME 2>&1 | grep -q "InvalidKeyPair.NotFound" && echo "✓ Key pair deleted" || echo "✗ Key pair still exists"
