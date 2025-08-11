@@ -73,6 +73,7 @@ Metadata:
       - Label:
           default: Server Configuration
         Parameters:
+          - GHEAMIID
           - InstanceType
           - KeyPairName
           - VolumeType
@@ -87,6 +88,8 @@ Metadata:
     ParameterLabels:
       AccessCIDR:
         default: Permitted IP range
+      GHEAMIID:
+        default: GitHub Enterprise AMI ID
       GHELicense:
         default: GitHub License Filename
       InitialOrganization:
@@ -129,6 +132,9 @@ Parameters:
     MaxLength: '18'
     MinLength: '9'
     Type: String
+  GHEAMIID:
+    Description: The AMI ID for GitHub Enterprise Server. This can be retrieved using the AWS CLI command described in the README.
+    Type: AWS::EC2::Image::Id
   GHELicense:
     Description: 'GitHub Enterprise License file that is uploaded to the License S3
       bucket. Sign up for a trial license here: https://enterprise.github.com/trial'
@@ -265,6 +271,7 @@ Resources:
     Properties:
       Parameters:
         AccessCIDR: !Ref 'AccessCIDR'
+        GHEAMIID: !Ref 'GHEAMIID'
         GHELicense: !Ref 'GHELicense'
         InitialOrganization: !Ref 'InitialOrganization'
         InitialRepository: !Ref 'InitialRepository'

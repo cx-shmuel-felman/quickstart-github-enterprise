@@ -321,6 +321,7 @@ Choose your deployment option based on your infrastructure needs:
        ParameterKey=KeyPairName,ParameterValue=$KEY_PAIR_NAME \
        ParameterKey=AccessCIDR,ParameterValue=$ACCESS_CIDR \
        ParameterKey=VPCCIDR,ParameterValue=$VPC_CIDR \
+       ParameterKey=GHEAMIID,ParameterValue=$GHE_AMI_ID \
        ParameterKey=LicenseLocation,ParameterValue=$LICENSE_BUCKET \
        ParameterKey=GHELicense,ParameterValue=$LICENSE_FILE \
        ParameterKey=SiteAdminUsername,ParameterValue="$SITE_ADMIN_USERNAME" \
@@ -382,6 +383,7 @@ Choose your deployment option based on your infrastructure needs:
        ParameterKey=VPCID,ParameterValue=$EXISTING_VPC_ID \
        ParameterKey=SubnetId,ParameterValue=$EXISTING_SUBNET_ID \
        ParameterKey=AccessCIDR,ParameterValue=$ACCESS_CIDR \
+       ParameterKey=GHEAMIID,ParameterValue=$GHE_AMI_ID \
        ParameterKey=LicenseLocation,ParameterValue=$LICENSE_BUCKET \
        ParameterKey=GHELicense,ParameterValue=$LICENSE_FILE \
        ParameterKey=SiteAdminUsername,ParameterValue="$SITE_ADMIN_USERNAME" \

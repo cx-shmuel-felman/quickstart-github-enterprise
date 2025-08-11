@@ -33,6 +33,7 @@ Metadata:
       - Label:
           default: Server Configuration
         Parameters:
+          - GHEAMIID
           - InstanceType
           - KeyPairName
           - VolumeType
@@ -55,6 +56,8 @@ Metadata:
         default: Quick Start S3 Key Prefix
       AccessCIDR:
         default: Permitted IP range
+      GHEAMIID:
+        default: GitHub Enterprise AMI ID
       LicenseLocation:
         default: GitHub License Location
       GHELicense:
@@ -95,40 +98,6 @@ Conditions:
       - !Ref 'VolumeType'
       - io2
   UsingDefaultBucket: !Equals [!Ref QSS3BucketName, 'aws-quickstart']
-Mappings:
-  AWSAMIRegionMap:
-    AMI:
-      GHE: GitHub Enterprise Server 3.8.5
-    ap-northeast-1:
-      GHE: ami-012ab4feca5d3ef1e
-    ap-northeast-2:
-      GHE: ami-0518dd81bc98f7977
-    ap-northeast-3:
-      GHE: ami-0518dd81bc98f7977
-    ap-south-1:
-      GHE: ami-0236b8ba8751ded3d
-    ap-southeast-1:
-      GHE: ami-02568b74f24f1224a
-    ap-southeast-2:
-      GHE: ami-02170121ccb823cea
-    ca-central-1:
-      GHE: ami-004f792b02ad40411
-    eu-central-1:
-      GHE: ami-092ea07812f83727c
-    eu-west-1:
-      GHE: ami-001b47277f48b5d64
-    eu-west-2:
-      GHE: ami-0fd15952c99ee0c59
-    sa-east-1:
-      GHE: ami-04fab7b0f73f78d1f
-    us-east-1:
-      GHE: ami-058eafc7ee2581fb6
-    us-east-2:
-      GHE: ami-0bc8e3b94c1153260
-    us-west-1:
-      GHE: ami-00f9531493726d577
-    us-west-2:
-      GHE: ami-06f43a42ec4e01030
 Outputs:
   AvailabilityZone:
     Description: Availability Zone of the newly created EC2 instance
@@ -162,6 +131,9 @@ Parameters:
     MaxLength: '18'
     MinLength: '9'
     Type: String
+  GHEAMIID:
+    Description: The AMI ID for GitHub Enterprise Server. This can be retrieved using the AWS CLI command described in the README.
+    Type: AWS::EC2::Image::Id
   GHELicense:
     Description: 'GitHub Enterprise License file that is uploaded to the License S3
       bucket. Sign up for a trial license here: https://enterprise.github.com/trial'
@@ -362,10 +334,7 @@ Resources:
             VolumeType: !Ref 'VolumeType'
       EbsOptimized: true
       IamInstanceProfile: !Ref 'EC2InstanceProfile'
-      ImageId: !FindInMap
-        - AWSAMIRegionMap
-        - !Ref 'AWS::Region'
-        - GHE
+      ImageId: !Ref 'GHEAMIID'
       InstanceType: !Ref 'InstanceType'
       KeyName: !Ref 'KeyPairName'
       SecurityGroupIds:
