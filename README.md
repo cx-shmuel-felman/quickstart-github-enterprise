@@ -292,9 +292,10 @@ Choose your deployment option based on your infrastructure needs:
 1. **Deploy Full Stack with New VPC**:
    ```bash
    # Deploy using the master template (creates VPC + GitHub Enterprise)
+   TEMPLATE_URL="https://${QS_S3_BUCKET}.s3.$AWS_REGION.amazonaws.com/${QS_S3_KEY_PREFIX}templates/quickstart-github-enterprise-master.template"
    aws cloudformation create-stack \
      --stack-name $STACK_NAME \
-     --template-url https://$QS_S3_BUCKET.s3.$AWS_REGION.amazonaws.com/${QS_S3_KEY_PREFIX}templates/quickstart-github-enterprise-master.template \
+     --template-url $TEMPLATE_URL \
      --parameters \
        ParameterKey=KeyPairName,ParameterValue=$KEY_PAIR_NAME \
        ParameterKey=AccessCIDR,ParameterValue=$ACCESS_CIDR \
