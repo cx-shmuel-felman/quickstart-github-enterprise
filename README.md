@@ -248,7 +248,7 @@ GitHub Enterprise Server AMIs are available in the following AWS regions:
    export INSTANCE_TYPE="m7i.xlarge"
    export VOLUME_TYPE="gp3"
    export VOLUME_SIZE="300"
-   export PROVISIONED_IOPS="3000"4
+   export PROVISIONED_IOPS="3000"
    export VPC_CIDR="10.0.0.0/16"
    export INITIAL_ORG="initial-organization"
    export INITIAL_REPO="initial-repository"
