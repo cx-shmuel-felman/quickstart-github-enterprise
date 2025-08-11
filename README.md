@@ -368,9 +368,10 @@ Choose your deployment option based on your infrastructure needs:
        ParameterKey=InstanceType,ParameterValue=$INSTANCE_TYPE \
        ParameterKey=VolumeType,ParameterValue=$VOLUME_TYPE \
        ParameterKey=VolumeSize,ParameterValue=$VOLUME_SIZE \
+       ParameterKey=ProvisionedIops,ParameterValue=$PROVISIONED_IOPS \
        ParameterKey=InitialOrganization,ParameterValue=$INITIAL_ORG \
        ParameterKey=InitialRepository,ParameterValue=$INITIAL_REPO \
-     --capabilities CAPABILITY_IAM \
+     --capabilities CAPABILITY_IAM CAPABILITY_AUTO_EXPAND \
      --role-arn $CF_ROLE_ARN \
      --region $AWS_REGION
 
