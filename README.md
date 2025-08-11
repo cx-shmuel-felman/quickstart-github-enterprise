@@ -90,7 +90,7 @@ GitHub Enterprise Server AMIs are available in the following AWS regions:
    export CF_ROLE_ARN="arn:aws:iam::$(aws sts get-caller-identity --query Account --output text):role/CloudFormation-Role"
 
    # Verify that the role exists
-   aws iam get-role --role-name AWSServiceRoleForCloudFormationStackSetsOrgMember &>/dev/null && \
+   aws iam get-role --role-name CloudFormation-Role &>/dev/null && \
      echo "✅ CloudFormation role exists: $CF_ROLE_ARN" || \
      echo "❌ CloudFormation role does not exist, please create it first"
    ```
@@ -248,7 +248,7 @@ GitHub Enterprise Server AMIs are available in the following AWS regions:
    export INSTANCE_TYPE="m7i.xlarge"
    export VOLUME_TYPE="gp3"
    export VOLUME_SIZE="300"
-   export PROVISIONED_IOPS="3000"
+   export PROVISIONED_IOPS="3000"4
    export VPC_CIDR="10.0.0.0/16"
    export INITIAL_ORG="initial-organization"
    export INITIAL_REPO="initial-repository"
