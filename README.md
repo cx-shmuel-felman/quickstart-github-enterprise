@@ -240,8 +240,8 @@ GitHub Enterprise Server AMIs are available in the following AWS regions:
    export STACK_NAME="github-enterprise-stack"
    export SITE_ADMIN_USERNAME="admin"
    export SITE_ADMIN_EMAIL="admin@yourcompany.com"
-   export SITE_ADMIN_PASSWORD="YourSecurePassword123!"  # Must meet complexity requirements
-   export MANAGEMENT_PASSWORD="YourManagementPassword123!"  # Must meet complexity requirements
+   export SITE_ADMIN_PASSWORD="YourSecurePassword123@"  # Must meet complexity requirements
+   export MANAGEMENT_PASSWORD="YourManagementPassword123@"  # Must meet complexity requirements
    export ACCESS_CIDR="31.168.164.190/32"  # Office IP only
 
    # Optional parameters with defaults
