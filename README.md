@@ -188,7 +188,7 @@ GitHub Enterprise Server AMIs are available in the following AWS regions:
 
    # Verify license file exists
    if [ ! -f "$LICENSE_FILE" ]; then
-     echo "ERROR: License file $LICENSE_FILE not found!"
+     echo "ERROR: License file $LICENSE_FILE not found"
      echo "Please download your license from GitHub Enterprise and place it in current directory"
      exit 1
    fi
