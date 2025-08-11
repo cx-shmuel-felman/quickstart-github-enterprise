@@ -287,40 +287,6 @@ Resources:
         - Name: InstanceId
           Value: !Ref 'EC2Instance'
   EC2Instance:
-    Metadata:
-      AWS::CloudFormation::Init:
-        config:
-          files:
-            /etc/gheadmin.conf:
-              content: !Join
-                - ''
-                - - 'github_console_password:'
-                  - !Ref 'ManagementPassword'
-                  - "\n"
-                  - 'github_s3_bucket:'
-                  - !Ref 'LicenseLocation'
-                  - "\n"
-                  - 'github_adminuser_name:'
-                  - !Ref 'SiteAdminUsername'
-                  - "\n"
-                  - 'github_adminuser_email:'
-                  - !Ref 'SiteAdminUserEmail'
-                  - "\n"
-                  - 'github_adminuser_password:'
-                  - !Ref 'SiteAdminUserPassword'
-                  - "\n"
-                  - 'github_organization:'
-                  - !Ref 'InitialOrganization'
-                  - "\n"
-                  - 'github_repository:'
-                  - !Ref 'InitialRepository'
-                  - "\n"
-                  - 'github_license_file:'
-                  - !Ref 'GHELicense'
-                  - "\n"
-              group: root
-              mode: '000400'
-              user: root
     Properties:
       BlockDeviceMappings:
         - DeviceName: /dev/xvdf
@@ -347,52 +313,7 @@ Resources:
         Fn::Join:
           - ''
           - - "#!/bin/bash\n"
-            - "easy_install https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-latest.tar.gz\
-              \ \n"
-            - "wget https://bootstrap.pypa.io/get-pip.py\n"
-            - "sudo python get-pip.py\n"
-            - "sudo pip install awscli\n"
-            - "sleep 5\n"
-            - '/usr/local/bin/cfn-init '
-            - ' --stack '
-            - !Ref 'AWS::StackName'
-            - ' --resource EC2Instance '
-            - ' --region '
-            - !Ref 'AWS::Region'
-            - "\n"
-            - SRC=
-            - !Sub
-              - https://${S3Bucket}.s3.${S3Region}.amazonaws.com/${QSS3KeyPrefix}
-              - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
-                S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
-            - "scripts/scripts_userdata.sh \n"
-            - "ADMININFO='/etc/gheadmin.conf'\n"
-            - 'curl -L $SRC | bash -s $(cat $ADMININFO| grep github_console_password
-              | awk -F: ''{print $2}'') '
-            - '$(cat $ADMININFO| grep github_s3_bucket | awk -F: ''{print $2}'') '
-            - "$(cat $ADMININFO| grep github_license_file | awk -F: '{print $2}');\
-              \ \n"
-            - SetUp=
-            - !Sub
-              - https://${S3Bucket}.s3.${S3Region}.amazonaws.com/${QSS3KeyPrefix}
-              - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
-                S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
-            - "scripts/adminuser_org_repo.sh \n"
-            - 'curl -L $SetUp | bash -s $(cat $ADMININFO| grep github_adminuser_name
-              | awk -F'':'' ''{print $2}'') '
-            - '$(cat $ADMININFO| grep github_adminuser_email | awk -F'':'' ''{print
-              $2}'') '
-            - '$(cat $ADMININFO| grep github_adminuser_password | awk -F'':'' ''{print
-              $2}'') '
-            - '$(cat $ADMININFO| grep github_organization | awk -F'':'' ''{print $2}'') '
-            - "$(cat $ADMININFO| grep github_repository | awk -F':' '{print $2}');\
-              \ \n"
-            - "echo \"exit code \"$? \n"
-            - '/usr/local/bin/cfn-signal -e $? '
-            - ' '''
-            - !Ref 'WaitforGitHubEnterpriseInstall'
-            - "'\n"
-            - " rm -f $ADMINNIFO\n"
+            - "echo 'GitHub Enterprise Server instance launched'\n"
     Type: AWS::EC2::Instance
   EC2InstanceProfile:
     Properties:
@@ -420,12 +341,7 @@ Resources:
       Domain: vpc
       InstanceId: !Ref 'EC2Instance'
     Type: AWS::EC2::EIP
-  GitHubWaitCondition:
-    DependsOn: EC2Instance
-    Properties:
-      Handle: !Ref 'WaitforGitHubEnterpriseInstall'
-      Timeout: '500'
-    Type: AWS::CloudFormation::WaitCondition
+
   InstanceSecurityGroup:
     Properties:
       GroupDescription: Ports needed for GitHub Enterprise
@@ -472,5 +388,3 @@ Resources:
           ToPort: 8443
       VpcId: !Ref 'VPCID'
     Type: AWS::EC2::SecurityGroup
-  WaitforGitHubEnterpriseInstall:
-    Type: AWS::CloudFormation::WaitConditionHandle
