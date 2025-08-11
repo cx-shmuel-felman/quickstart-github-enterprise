@@ -280,6 +280,27 @@ GitHub Enterprise Server AMIs are available in the following AWS regions:
 
    echo "Password requirements validated ✓"
    ```
+3. **Retrieve GitHub Enterprise Server ami**:
+   ```bash
+   export GHES_VERSION="3.8.5" #Change if needs to use another version or if this version not exist anymore
+
+   amis_list=$(aws ec2 describe-images \
+     --region $AWS_REGION \
+     --owners 895557238572 \
+     --query "sort_by(Images,&Name)[*].{Name:Name,ImageID:ImageId}" \
+     --output json)
+
+   # Filter the list to get the AMI for the chosen version
+   GHE_AMI_ID=$(echo "$amis_list" | jq -r --arg version "GitHub Enterprise Server $GHES_VERSION" '.[] | select(.Name == $version) | .ImageID')
+
+   if [[ -z "$GHE_AMI_ID" ]]; then
+     echo "ERROR: No AMI found for GitHub Enterprise Server version $GHES_VERSION, those are the available AMIs:"
+     echo "$amis_list"
+     exit 1
+   fi
+
+   echo "Selected AMI for GitHub Enterprise Server $GHES_VERSION: $GHE_AMI_ID"
+   ```
 
 ### Step 5: Deploy GitHub Enterprise Server
 
@@ -351,9 +372,11 @@ Choose your deployment option based on your infrastructure needs:
 2. **Deploy into Existing VPC**:
    ```bash
    # Deploy using the existing VPC template
+   TEMPLATE_URL="https://{$QS_S3_BUCKET}.s3.${AWS_REGION}.amazonaws.com/${QS_S3_KEY_PREFIX}templates/quickstart-github-enterprise-master.template"
+
    aws cloudformation create-stack \
+     --template-url $TEMPLATE_URL
      --stack-name $STACK_NAME \
-     --template-url https://$QS_S3_BUCKET.s3.$AWS_REGION.amazonaws.com/${QS_S3_KEY_PREFIX}templates/quickstart-github-enterprise-master.template \
      --parameters \
        ParameterKey=KeyPairName,ParameterValue=$KEY_PAIR_NAME \
        ParameterKey=VPCID,ParameterValue=$EXISTING_VPC_ID \
