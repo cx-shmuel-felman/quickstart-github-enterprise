@@ -315,7 +315,7 @@ Choose your deployment option based on your infrastructure needs:
        ParameterKey=QSS3BucketName,ParameterValue=$QS_S3_BUCKET \
        ParameterKey=QSS3BucketRegion,ParameterValue=$AWS_REGION \
        ParameterKey=QSS3KeyPrefix,ParameterValue=$QS_S3_KEY_PREFIX \
-     --capabilities CAPABILITY_IAM \
+     --capabilities CAPABILITY_IAM CAPABILITY_AUTO_EXPAND\
      --role-arn $CF_ROLE_ARN \
      --region $AWS_REGION
 
