@@ -248,6 +248,7 @@ GitHub Enterprise Server AMIs are available in the following AWS regions:
    export INSTANCE_TYPE="m7i.xlarge"
    export VOLUME_TYPE="gp3"
    export VOLUME_SIZE="300"
+   export PROVISIONED_IOPS="3000"
    export VPC_CIDR="10.0.0.0/16"
    export INITIAL_ORG="initial-organization"
    export INITIAL_REPO="initial-repository"
@@ -307,6 +308,7 @@ Choose your deployment option based on your infrastructure needs:
        ParameterKey=InstanceType,ParameterValue=$INSTANCE_TYPE \
        ParameterKey=VolumeType,ParameterValue=$VOLUME_TYPE \
        ParameterKey=VolumeSize,ParameterValue=$VOLUME_SIZE \
+       ParameterKey=ProvisionedIops,ParameterValue=$PROVISIONED_IOPS \
        ParameterKey=InitialOrganization,ParameterValue=$INITIAL_ORG \
        ParameterKey=InitialRepository,ParameterValue=$INITIAL_REPO \
        ParameterKey=QSS3BucketName,ParameterValue=$QS_S3_BUCKET \
