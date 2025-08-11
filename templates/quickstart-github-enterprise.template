@@ -228,8 +228,8 @@ Parameters:
     NoEcho: 'True'
     Type: String
   ProvisionedIops:
-    ConstraintDescription: Range is 100 to 20000 for Provisioned IOPS SSD volumes
-    Description: Set the provisioned IOPs between 100 and 20000. Only set if you are
+    ConstraintDescription: Range is 3000 to 20000 for Provisioned IOPS SSD volumes
+    Description: Set the provisioned IOPs between 3000 and 20000. Only set if you are
       choosing io1 or io2 for your volume type
     Type: String
   QSS3BucketName:
