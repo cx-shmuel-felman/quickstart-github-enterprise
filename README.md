@@ -81,7 +81,7 @@ GitHub Enterprise Server AMIs are available in the following AWS regions:
    aws sts get-caller-identity
 
    # Set your deployment region (adjust as needed)
-   export AWS_REGION=us-east-1
+   export AWS_REGION=eu-west-1
    echo "Using AWS Region: $AWS_REGION"
 
    # Set the CloudFormation role to assume for deployments
