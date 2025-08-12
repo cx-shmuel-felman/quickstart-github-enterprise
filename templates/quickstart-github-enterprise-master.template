@@ -80,6 +80,11 @@ Metadata:
           - ProvisionedIops
           - VolumeSize
       - Label:
+          default: DNS Configuration
+        Parameters:
+          - HostedZoneDomain
+          - DNSRecordName
+      - Label:
           default: AWS Quick Start Configuration
         Parameters:
           - QSS3BucketName
@@ -124,6 +129,10 @@ Metadata:
         default: Volume Size
       VolumeType:
         default: Volume Type
+      HostedZoneDomain:
+        default: Route 53 Hosted Zone Domain
+      DNSRecordName:
+        default: DNS Record Name
 Parameters:
   AccessCIDR:
     AllowedPattern: (\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})
@@ -264,6 +273,14 @@ Parameters:
     Description: Choose GP3 (recommended), IO2 (for high IOPS), or legacy GP2/IO1. GP3 offers better performance than GP2. IO2 is recommended for more than 500 users
     Default: gp3
     Type: String
+  HostedZoneDomain:
+    Description: 'Optional: The Route 53 hosted zone domain (e.g., example.com) where a DNS record will be created for the GitHub Enterprise Server. Leave blank to skip DNS record creation.'
+    Type: String
+    Default: ''
+  DNSRecordName:
+    Description: 'The DNS record name to create (default: github-onprem). This will be combined with the hosted zone domain to create the full DNS name (e.g., github.example.com).'
+    Type: String
+    Default: 'github-onprem'
 Resources:
   GHEStack:
     DependsOn: GHEVPCStack
@@ -290,6 +307,8 @@ Resources:
         VPCID: !GetAtt 'GHEVPCStack.Outputs.VPCID'
         VolumeSize: !Ref 'VolumeSize'
         VolumeType: !Ref 'VolumeType'
+        HostedZoneDomain: !Ref 'HostedZoneDomain'
+        DNSRecordName: !Ref 'DNSRecordName'
       TemplateURL:
         !Sub
           - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/quickstart-github-enterprise.template'

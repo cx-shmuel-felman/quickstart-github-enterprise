@@ -12,6 +12,7 @@ This QuickStart deploys GitHub Enterprise Server with the following components:
 - **Elastic IP** for consistent public IP address
 - **IAM roles** for S3 access to license files
 - **CloudWatch alarms** for instance monitoring and automatic recovery
+- **Route 53 DNS record** (optional) for custom domain access
 
 ## Deployment Options
 
@@ -63,6 +64,13 @@ These will be created in the deployment steps below:
   - For organization: Your company's IP range
   - **Security Warning**: Avoid `0.0.0.0/0` which allows global access
 - Consider your organization's network security requirements
+
+### 5. DNS Configuration (Optional)
+- **Route 53 Hosted Zone** - If you have a Route 53 hosted zone and want to create a custom domain for your GitHub Enterprise Server
+  - The template will automatically create a DNS record pointing to the server
+  - Configure the record name (default: `github-onprem`) and hosted zone domain (e.g., `example.com`) to create the full DNS name (e.g., `github-onprem.example.com`)
+  - Leave the `HostedZoneDomain` parameter blank to skip DNS record creation
+  - Ensure the hosted zone exists in your AWS account before deployment
 
 ## Supported Regions
 
@@ -253,6 +261,10 @@ GitHub Enterprise Server AMIs are available in the following AWS regions:
    export INITIAL_ORG="initial-organization"
    export INITIAL_REPO="initial-repository"
 
+   # DNS Configuration (Optional)
+   export HOSTED_ZONE_DOMAIN=""  # e.g., "example.com" - leave empty to skip DNS record creation
+   export DNS_RECORD_NAME="github-onprem"  # DNS record name (default: github) - will create github.example.com
+
    # Template-related parameters (set based on your bucket choice above)
    export QS_S3_BUCKET="$TEMPLATES_BUCKET"  # Use your custom bucket or "aws-quickstart"
 
@@ -337,6 +349,7 @@ Choose your deployment option based on your infrastructure needs:
        ParameterKey=QSS3BucketName,ParameterValue=$QS_S3_BUCKET \
        ParameterKey=QSS3BucketRegion,ParameterValue=$AWS_REGION \
        ParameterKey=QSS3KeyPrefix,ParameterValue=$QS_S3_KEY_PREFIX \
+       $(if [ -n "$HOSTED_ZONE_DOMAIN" ]; then echo "ParameterKey=HostedZoneDomain,ParameterValue=$HOSTED_ZONE_DOMAIN ParameterKey=DNSRecordName,ParameterValue=$DNS_RECORD_NAME"; fi) \
      --capabilities CAPABILITY_IAM CAPABILITY_AUTO_EXPAND \
      --role-arn $CF_ROLE_ARN \
      --region $AWS_REGION
@@ -396,6 +409,7 @@ Choose your deployment option based on your infrastructure needs:
        ParameterKey=ProvisionedIops,ParameterValue=$PROVISIONED_IOPS \
        ParameterKey=InitialOrganization,ParameterValue=$INITIAL_ORG \
        ParameterKey=InitialRepository,ParameterValue=$INITIAL_REPO \
+       $(if [ -n "$HOSTED_ZONE_DOMAIN" ]; then echo "ParameterKey=HostedZoneDomain,ParameterValue=$HOSTED_ZONE_DOMAIN ParameterKey=DNSRecordName,ParameterValue=$DNS_RECORD_NAME"; fi) \
      --capabilities CAPABILITY_IAM CAPABILITY_AUTO_EXPAND \
      --role-arn $CF_ROLE_ARN \
      --region $AWS_REGION
@@ -483,6 +497,16 @@ Choose your deployment option based on your infrastructure needs:
    echo "  Public IP: $GHE_PUBLIC_IP"
    echo "  URL: $GHE_URL"
    echo "  Instance ID: $GHE_INSTANCE_ID"
+
+   # Get DNS name if Route 53 record was created
+   if [ -n "$HOSTED_ZONE_DOMAIN" ]; then
+     export GHE_DNS_NAME=$(aws cloudformation describe-stacks \
+       --stack-name $STACK_NAME \
+       --role-arn $CF_ROLE_ARN \
+       --query 'Stacks[0].Outputs[?OutputKey==`DNSName`].OutputValue' \
+       --output text)
+     echo "  DNS Name: $GHE_DNS_NAME"
+   fi
    ```
 
 2. **Retrieve SSH Private Key** (if needed):
@@ -533,6 +557,13 @@ Choose your deployment option based on your infrastructure needs:
 | `VPCID` | Existing VPC ID (existing VPC only) | - | `vpc-12345678` |
 | `SubnetId` | Public subnet ID (existing VPC only) | - | `subnet-12345678` |
 
+### DNS Configuration Parameters
+
+| Parameter | Description | Default | Example |
+|-----------|-------------|---------|---------|
+| `HostedZoneDomain` | Route 53 hosted zone domain (optional) | `` | `example.com` |
+| `DNSRecordName` | DNS record name to create | `github` | `github`, `ghe`, `dev` |
+
 ### Server Configuration Parameters
 
 | Parameter | Description | Default | Options |
@@ -560,6 +591,11 @@ After deployment completes successfully:
    # Open GitHub Enterprise Server in your browser
    echo "GitHub Enterprise Server is available at: $GHE_URL"
    echo "Direct IP access: https://$GHE_PUBLIC_IP"
+
+   # If DNS was configured, also show the custom domain
+   if [ -n "$HOSTED_ZONE_DOMAIN" ]; then
+     echo "Custom domain access: https://$DNS_RECORD_NAME.$HOSTED_ZONE_DOMAIN"
+   fi
 
    # For macOS, open automatically
    # open $GHE_URL
@@ -603,7 +639,7 @@ The QuickStart automatically configures:
 
 Consider these additional setup steps:
 
-1. **Configure custom domain and SSL certificate**
+1. **Configure SSL certificate** (especially for custom domains from Route 53 setup)
 2. **Set up LDAP/SAML authentication** if required
 3. **Configure backup strategy** using GitHub Enterprise backup utilities
 4. **Set up monitoring and alerting**
