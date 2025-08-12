@@ -13,23 +13,9 @@ Metadata:
           - AccessCIDR
           - SubnetId
           - VPCID
-      - Label:
-          default: GitHubEnterprise License
-        Parameters:
-          - LicenseLocation
-          - GHELicense
-      - Label:
-          default: GitHub Enterprise Organization and Repository
-        Parameters:
-          - InitialOrganization
-          - InitialRepository
-      - Label:
-          default: Site Admin User Information
-        Parameters:
-          - ManagementPassword
-          - SiteAdminUsername
-          - SiteAdminUserEmail
-          - SiteAdminUserPassword
+
+
+
       - Label:
           default: Server Configuration
         Parameters:
@@ -44,41 +30,14 @@ Metadata:
         Parameters:
           - HostedZoneDomain
           - DNSRecordName
-      - Label:
-          default: AWS Quick Start Configuration
-        Parameters:
-          - QSS3BucketName
-          - QSS3BucketRegion
-          - QSS3KeyPrefix
+
     ParameterLabels:
       KeyPairName:
         default: Key Pair Name
-      QSS3BucketName:
-        default: Quick Start S3 Bucket Name
-      QSS3BucketRegion:
-        default: Quick Start S3 bucket region
-      QSS3KeyPrefix:
-        default: Quick Start S3 Key Prefix
       AccessCIDR:
         default: Permitted IP range
       GHEAMIID:
         default: GitHub Enterprise AMI ID
-      LicenseLocation:
-        default: GitHub License Location
-      GHELicense:
-        default: GitHub License Filename
-      InitialOrganization:
-        default: Initial Organization
-      InitialRepository:
-        default: Initial Repository
-      ManagementPassword:
-        default: Management Password
-      SiteAdminUsername:
-        default: Site Admin Username
-      SiteAdminUserPassword:
-        default: Site Admin User Password
-      SiteAdminUserEmail:
-        default: Site Admin User Email
       VolumeType:
         default: Volume Type
       InstanceType:
@@ -106,7 +65,7 @@ Conditions:
     - !Equals
       - !Ref 'VolumeType'
       - io2
-  UsingDefaultBucket: !Equals [!Ref QSS3BucketName, 'aws-quickstart']
+
   CreateDNSRecord: !Not [!Equals [!Ref HostedZoneDomain, '']]
 Outputs:
   AvailabilityZone:
@@ -152,18 +111,9 @@ Parameters:
   GHEAMIID:
     Description: The AMI ID for GitHub Enterprise Server. This can be retrieved using the AWS CLI command described in the README.
     Type: AWS::EC2::Image::Id
-  GHELicense:
-    Description: 'GitHub Enterprise License file that is uploaded to the License S3
-      bucket. Sign up for a trial license here: https://enterprise.github.com/trial'
-    Type: String
-  InitialOrganization:
-    Description: The initial organization to hold the GitHub Enterprise repository
-    Default: initial-organization
-    Type: String
-  InitialRepository:
-    Description: The initial repository to create
-    Default: initial-repository
-    Type: String
+
+
+
   InstanceType:
     AllowedValues:
       - m7i.large
@@ -204,64 +154,10 @@ Parameters:
     ConstraintDescription: must be the name of an existing EC2 KeyPair.
     Description: Name of an existing EC2 KeyPair to enable SSH access to the instance
     Type: AWS::EC2::KeyPair::KeyName
-  LicenseLocation:
-    Description: Name of S3 bucket containing GitHub Enterprise license
-    Type: String
-  ManagementPassword:
-    AllowedPattern: (?=.*\d)(?=.*[a-z])(?=.*[A-Z])[a-zA-Z0-9]*
-    ConstraintDescription: Passwords must be at least 7 characters long and include
-      at least one number and one upper case letter.
-    Description: Set the Console password for Github Enterprise (Passwords must be
-      at least 7 characters long and include at least one number and one upper case
-      letter)
-    MinLength: '7'
-    NoEcho: 'True'
-    Type: String
   ProvisionedIops:
     ConstraintDescription: Range is 3000 to 20000 for Provisioned IOPS SSD volumes
     Description: Set the provisioned IOPs between 3000 and 20000. Only set if you are
       choosing io1 or io2 for your volume type
-    Type: String
-  QSS3BucketName:
-    AllowedPattern: ^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$
-    ConstraintDescription: Quick Start bucket name can include numbers, lowercase
-      letters, uppercase letters, and hyphens (-). It cannot start or end with a hyphen
-      (-).
-    Default: aws-quickstart
-    Description: S3 bucket name for the Quick Start assets. Quick Start bucket name
-      can include numbers, lowercase letters, uppercase letters, and hyphens (-).
-      It cannot start or end with a hyphen (-).
-    Type: String
-  QSS3BucketRegion:
-    Default: 'us-east-1'
-    Description: 'The AWS Region where the Quick Start S3 bucket (QSS3BucketName) is hosted. When using your own bucket, you must specify this value.'
-    Type: String
-  QSS3KeyPrefix:
-    AllowedPattern: ^[0-9a-zA-Z-]+(/[0-9a-zA-Z-]+)*/
-    ConstraintDescription: Quick Start key prefix can include numbers, lowercase letters,
-      uppercase letters, hyphens (-), and forward slash (/). It cannot start with
-      forward slash (/) because is it automatically added.
-    Default: quickstart-github-enterprise/
-    Description: >-
-      S3 key prefix for the Quick Start assets. Quick Start key prefix can include
-      numbers, lowercase letters, uppercase letters, hyphens (-), and forward slash
-      (/). It cannot start with forward slash (/) because it is automatically added.
-    Type: String
-  SiteAdminUserEmail:
-    Description: Site Admin Email address
-    Type: String
-  SiteAdminUserPassword:
-    AllowedPattern: (?=.*\d)(?=.*[a-z])(?=.*[A-Z])[a-zA-Z0-9]*
-    ConstraintDescription: Passwords must be at least 7 characters long and include
-      at least one number and one upper case letter.
-    Description: Set the Console password for Github Enterprise (Passwords must be
-      at least 7 characters long and include at least one number and one upper case
-      letter)
-    MinLength: '7'
-    NoEcho: 'True'
-    Type: String
-  SiteAdminUsername:
-    Description: Set the Site Admin Username
     Type: String
   SubnetId:
     Description: The Public subnet where the GitHub Enterprise instance will be launched

@@ -54,23 +54,6 @@ Metadata:
           - VPCCIDR
           - AccessCIDR
       - Label:
-          default: GitHubEnterprise License
-        Parameters:
-          - LicenseLocation
-          - GHELicense
-      - Label:
-          default: GitHub Enterprise Organization and Repository
-        Parameters:
-          - InitialOrganization
-          - InitialRepository
-      - Label:
-          default: Site Admin User Information
-        Parameters:
-          - ManagementPassword
-          - SiteAdminUsername
-          - SiteAdminUserEmail
-          - SiteAdminUserPassword
-      - Label:
           default: Server Configuration
         Parameters:
           - GHEAMIID
@@ -95,20 +78,10 @@ Metadata:
         default: Permitted IP range
       GHEAMIID:
         default: GitHub Enterprise AMI ID
-      GHELicense:
-        default: GitHub License Filename
-      InitialOrganization:
-        default: Initial Organization
-      InitialRepository:
-        default: Initial Repository
       InstanceType:
         default: Instance Type
       KeyPairName:
         default: Key Pair Name
-      LicenseLocation:
-        default: GitHub License Location
-      ManagementPassword:
-        default: Management Password
       ProvisionedIops:
         default: Provisioned IOPS
       QSS3BucketName:
@@ -117,12 +90,6 @@ Metadata:
         default: Quick Start S3 bucket region
       QSS3KeyPrefix:
         default: Quick Start S3 Key Prefix
-      SiteAdminUserEmail:
-        default: Site Admin User Email
-      SiteAdminUserPassword:
-        default: Site Admin User Password
-      SiteAdminUsername:
-        default: Site Admin Username
       VPCCIDR:
         default: VPC CIDR
       VolumeSize:
@@ -144,18 +111,9 @@ Parameters:
   GHEAMIID:
     Description: The AMI ID for GitHub Enterprise Server. This can be retrieved using the AWS CLI command described in the README.
     Type: AWS::EC2::Image::Id
-  GHELicense:
-    Description: 'GitHub Enterprise License file that is uploaded to the License S3
-      bucket. Sign up for a trial license here: https://enterprise.github.com/trial'
-    Type: String
-  InitialOrganization:
-    Description: The initial organization to hold the GitHub Enterprise repository
-    Default: initial-organization
-    Type: String
-  InitialRepository:
-    Description: The initial repository to create
-    Default: initial-repository
-    Type: String
+
+
+
   InstanceType:
     AllowedValues:
       - m7i.large
@@ -196,19 +154,6 @@ Parameters:
     Description: Public/private key pairs allow you to securely connect to your instance
       after it launches
     Type: AWS::EC2::KeyPair::KeyName
-  LicenseLocation:
-    Description: Name of S3 bucket containing GitHub Enterprise license
-    Type: String
-  ManagementPassword:
-    AllowedPattern: (?=.*\d)(?=.*[a-z])(?=.*[A-Z])[a-zA-Z0-9]*
-    ConstraintDescription: Passwords must be at least 7 characters long and include
-      at least one number and one upper case letter.
-    Description: Set the Management password for Github Enterprise (Passwords must
-      be at least 7 characters long and include at least one number and one upper
-      case letter)
-    MinLength: '7'
-    NoEcho: 'True'
-    Type: String
   ProvisionedIops:
     ConstraintDescription: Range is 100 to 20000 for Provisioned IOPS SSD volumes
     Description: Set the provisioned IOPs between 100 and 20000. Only set if you are
@@ -238,22 +183,6 @@ Parameters:
       S3 key prefix for the Quick Start assets. Quick Start key prefix can include
       numbers, lowercase letters, uppercase letters, hyphens (-), and forward slash
       (/). It cannot start with forward slash (/) because it is automatically added
-    Type: String
-  SiteAdminUserEmail:
-    Description: Site Admin Email address
-    Type: String
-  SiteAdminUserPassword:
-    AllowedPattern: (?=.*\d)(?=.*[a-z])(?=.*[A-Z])[a-zA-Z0-9]*
-    ConstraintDescription: Passwords must be at least 7 characters long and include
-      at least one number and one upper case letter.
-    Description: Set the Site Admin password for Github Enterprise (Passwords must
-      be at least 7 characters long and include at least one number and one upper
-      case letter)
-    MinLength: '7'
-    NoEcho: 'True'
-    Type: String
-  SiteAdminUsername:
-    Description: Set the Site Admin Username
     Type: String
   VPCCIDR:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
@@ -289,20 +218,9 @@ Resources:
       Parameters:
         AccessCIDR: !Ref 'AccessCIDR'
         GHEAMIID: !Ref 'GHEAMIID'
-        GHELicense: !Ref 'GHELicense'
-        InitialOrganization: !Ref 'InitialOrganization'
-        InitialRepository: !Ref 'InitialRepository'
         InstanceType: !Ref 'InstanceType'
         KeyPairName: !Ref 'KeyPairName'
-        LicenseLocation: !Ref 'LicenseLocation'
-        ManagementPassword: !Ref 'ManagementPassword'
         ProvisionedIops: !Ref 'ProvisionedIops'
-        QSS3BucketName: !Ref 'QSS3BucketName'
-        QSS3BucketRegion: !Ref 'QSS3BucketRegion'
-        QSS3KeyPrefix: !Ref 'QSS3KeyPrefix'
-        SiteAdminUserEmail: !Ref 'SiteAdminUserEmail'
-        SiteAdminUserPassword: !Ref 'SiteAdminUserPassword'
-        SiteAdminUsername: !Ref 'SiteAdminUsername'
         SubnetId: !GetAtt 'GHEVPCStack.Outputs.SubnetId'
         VPCID: !GetAtt 'GHEVPCStack.Outputs.VPCID'
         VolumeSize: !Ref 'VolumeSize'

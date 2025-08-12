@@ -45,19 +45,9 @@ Before deploying, ensure you have:
   - `s3:*` (S3 full access)
   - `secretsmanager:*` (Secrets Manager full access)
 
-### 2. GitHub Enterprise License
-- **GitHub Enterprise Server license file** (`.ghl` format)
-- Sign up for a trial license at: https://enterprise.github.com/trial
-- Download the license file to your local machine
-- Valid license is required for GitHub Enterprise Server operation
 
-### 3. AWS Resources Setup
-These will be created in the deployment steps below:
-- **EC2 Key Pair** for SSH access (with private key stored in Secrets Manager)
-- **S3 bucket** to store your GitHub Enterprise license file
-- **Secrets Manager secret** to securely store the private key
 
-### 4. Network Planning
+### 3. Network Planning
 - **VPC CIDR block** (if creating new VPC) - recommend `10.0.0.0/16`
 - **Access CIDR range** for controlling access to GitHub Enterprise Server
   - For testing: Your public IP + `/32` (most secure)
@@ -65,7 +55,7 @@ These will be created in the deployment steps below:
   - **Security Warning**: Avoid `0.0.0.0/0` which allows global access
 - Consider your organization's network security requirements
 
-### 5. DNS Configuration (Optional)
+### 4. DNS Configuration (Optional)
 - **Route 53 Hosted Zone** - If you have a Route 53 hosted zone and want to create a custom domain for your GitHub Enterprise Server
   - The template will automatically create a DNS record pointing to the server
   - Configure the record name (default: `github-onprem`) and hosted zone domain (e.g., `example.com`) to create the full DNS name (e.g., `github-onprem.example.com`)
@@ -157,57 +147,7 @@ GitHub Enterprise Server AMIs are available in the following AWS regions:
    echo "aws secretsmanager get-secret-value --secret-id github-enterprise/ssh-key/$KEY_PAIR_NAME --query SecretString --output text"
    ```
 
-### Step 2: Prepare GitHub Enterprise License
-
-1. **Create S3 Bucket for License Storage**:
-   ```bash
-   # Set unique bucket name
-   export LICENSE_BUCKET="ghe-license-$(aws sts get-caller-identity --query Account --output text)-$(date +%Y%m%d)"
-
-   # Create S3 bucket
-   aws s3 mb s3://$LICENSE_BUCKET --region $AWS_REGION
-
-   # Enable versioning (recommended)
-   aws s3api put-bucket-versioning \
-     --bucket $LICENSE_BUCKET \
-     --versioning-configuration Status=Enabled
-
-   # Enable encryption
-   aws s3api put-bucket-encryption \
-     --bucket $LICENSE_BUCKET \
-     --server-side-encryption-configuration '{
-       "Rules": [
-         {
-           "ApplyServerSideEncryptionByDefault": {
-             "SSEAlgorithm": "AES256"
-           }
-         }
-       ]
-     }'
-
-   echo "S3 bucket created: $LICENSE_BUCKET"
-   ```
-
-2. **Upload GitHub Enterprise License**:
-   ```bash
-   # Ensure you have your license file downloaded
-   # Replace 'github-enterprise.ghl' with your actual license filename
-   export LICENSE_FILE="github-enterprise.ghl"
-
-   # Verify license file exists
-   if [ ! -f "$LICENSE_FILE" ]; then
-     echo "ERROR: License file $LICENSE_FILE not found"
-     echo "Please download your license from GitHub Enterprise and place it in current directory"
-     exit 1
-   fi
-
-   # Upload license to S3
-   aws s3 cp $LICENSE_FILE s3://$LICENSE_BUCKET/
-
-   echo "License uploaded to S3: s3://$LICENSE_BUCKET/$LICENSE_FILE"
-   ```
-
-### Step 3: Prepare CloudFormation Templates
+### Step 2: Prepare CloudFormation Templates
 
 1. **Create S3 Bucket for Templates** (Required for Master Template):
    ```bash
@@ -240,16 +180,12 @@ GitHub Enterprise Server AMIs are available in the following AWS regions:
    echo "Templates uploaded and configured for CloudFormation access"
    ```
 
-### Step 4: Set Deployment Parameters
+### Step 3: Set Deployment Parameters
 
 1. **Set Required Parameters**:
    ```bash
    # Required parameters - CUSTOMIZE THESE VALUES
    export STACK_NAME="github-enterprise-stack"
-   export SITE_ADMIN_USERNAME="admin"
-   export SITE_ADMIN_EMAIL="admin@yourcompany.com"
-   export SITE_ADMIN_PASSWORD="YourSecurePassword123"  # Must meet complexity requirements
-   export MANAGEMENT_PASSWORD="YourManagementPassword123"  # Must meet complexity requirements
    export ACCESS_CIDR="31.168.164.190/32"  # Office IP only
 
    # Optional parameters with defaults
@@ -258,8 +194,6 @@ GitHub Enterprise Server AMIs are available in the following AWS regions:
    export VOLUME_SIZE="300"
    export PROVISIONED_IOPS="3000"
    export VPC_CIDR="10.0.0.0/16"
-   export INITIAL_ORG="initial-organization"
-   export INITIAL_REPO="initial-repository"
 
    # DNS Configuration (Optional)
    export HOSTED_ZONE_DOMAIN=""  # e.g., "example.com" - leave empty to skip DNS record creation
@@ -271,28 +205,13 @@ GitHub Enterprise Server AMIs are available in the following AWS regions:
    echo "Deployment parameters set:"
    echo "  Stack Name: $STACK_NAME"
    echo "  Key Pair: $KEY_PAIR_NAME"
-   echo "  License Bucket: $LICENSE_BUCKET"
    echo "  Templates Bucket: $QS_S3_BUCKET"
    echo "  Access CIDR: $ACCESS_CIDR"
    echo "  Instance Type: $INSTANCE_TYPE"
    ```
 
-2. **Validate Parameters**:
-   ```bash
-   # Check password complexity (minimum requirements)
-   if [[ ${#SITE_ADMIN_PASSWORD} -lt 7 ]] || [[ ! "$SITE_ADMIN_PASSWORD" =~ [0-9] ]] || [[ ! "$SITE_ADMIN_PASSWORD" =~ [A-Z] ]]; then
-     echo "ERROR: SITE_ADMIN_PASSWORD must be at least 7 characters with at least one number and one uppercase letter"
-     exit 1
-   fi
 
-   if [[ ${#MANAGEMENT_PASSWORD} -lt 7 ]] || [[ ! "$MANAGEMENT_PASSWORD" =~ [0-9] ]] || [[ ! "$MANAGEMENT_PASSWORD" =~ [A-Z] ]]; then
-     echo "ERROR: MANAGEMENT_PASSWORD must be at least 7 characters with at least one number and one uppercase letter"
-     exit 1
-   fi
-
-   echo "Password requirements validated ✓"
-   ```
-3. **Retrieve GitHub Enterprise Server ami**:
+2. **Retrieve GitHub Enterprise Server ami**:
    ```bash
    export GHES_VERSION="3.8.18" #Change if needs to use another version or if this version not exist anymore
 
@@ -314,7 +233,7 @@ GitHub Enterprise Server AMIs are available in the following AWS regions:
    echo "Selected AMI for GitHub Enterprise Server $GHES_VERSION: $GHE_AMI_ID"
    ```
 
-### Step 5: Deploy GitHub Enterprise Server
+### Step 4: Deploy GitHub Enterprise Server
 
 Choose your deployment option based on your infrastructure needs:
 
@@ -334,18 +253,10 @@ Choose your deployment option based on your infrastructure needs:
        ParameterKey=AccessCIDR,ParameterValue=$ACCESS_CIDR \
        ParameterKey=VPCCIDR,ParameterValue=$VPC_CIDR \
        ParameterKey=GHEAMIID,ParameterValue=$GHE_AMI_ID \
-       ParameterKey=LicenseLocation,ParameterValue=$LICENSE_BUCKET \
-       ParameterKey=GHELicense,ParameterValue=$LICENSE_FILE \
-       ParameterKey=SiteAdminUsername,ParameterValue="$SITE_ADMIN_USERNAME" \
-       ParameterKey=SiteAdminUserEmail,ParameterValue="$SITE_ADMIN_EMAIL" \
-       ParameterKey=SiteAdminUserPassword,ParameterValue="$SITE_ADMIN_PASSWORD" \
-       ParameterKey=ManagementPassword,ParameterValue="$MANAGEMENT_PASSWORD" \
        ParameterKey=InstanceType,ParameterValue=$INSTANCE_TYPE \
        ParameterKey=VolumeType,ParameterValue=$VOLUME_TYPE \
        ParameterKey=VolumeSize,ParameterValue=$VOLUME_SIZE \
        ParameterKey=ProvisionedIops,ParameterValue=$PROVISIONED_IOPS \
-       ParameterKey=InitialOrganization,ParameterValue=$INITIAL_ORG \
-       ParameterKey=InitialRepository,ParameterValue=$INITIAL_REPO \
        ParameterKey=QSS3BucketName,ParameterValue=$QS_S3_BUCKET \
        ParameterKey=QSS3BucketRegion,ParameterValue=$AWS_REGION \
        ParameterKey=QSS3KeyPrefix,ParameterValue=$QS_S3_KEY_PREFIX \
@@ -397,18 +308,10 @@ Choose your deployment option based on your infrastructure needs:
        ParameterKey=SubnetId,ParameterValue=$EXISTING_SUBNET_ID \
        ParameterKey=AccessCIDR,ParameterValue=$ACCESS_CIDR \
        ParameterKey=GHEAMIID,ParameterValue=$GHE_AMI_ID \
-       ParameterKey=LicenseLocation,ParameterValue=$LICENSE_BUCKET \
-       ParameterKey=GHELicense,ParameterValue=$LICENSE_FILE \
-       ParameterKey=SiteAdminUsername,ParameterValue="$SITE_ADMIN_USERNAME" \
-       ParameterKey=SiteAdminUserEmail,ParameterValue="$SITE_ADMIN_EMAIL" \
-       ParameterKey=SiteAdminUserPassword,ParameterValue="$SITE_ADMIN_PASSWORD" \
-       ParameterKey=ManagementPassword,ParameterValue="$MANAGEMENT_PASSWORD" \
        ParameterKey=InstanceType,ParameterValue=$INSTANCE_TYPE \
        ParameterKey=VolumeType,ParameterValue=$VOLUME_TYPE \
        ParameterKey=VolumeSize,ParameterValue=$VOLUME_SIZE \
        ParameterKey=ProvisionedIops,ParameterValue=$PROVISIONED_IOPS \
-       ParameterKey=InitialOrganization,ParameterValue=$INITIAL_ORG \
-       ParameterKey=InitialRepository,ParameterValue=$INITIAL_REPO \
        $(if [ -n "$HOSTED_ZONE_DOMAIN" ]; then echo "ParameterKey=HostedZoneDomain,ParameterValue=$HOSTED_ZONE_DOMAIN ParameterKey=DNSRecordName,ParameterValue=$DNS_RECORD_NAME"; fi) \
      --capabilities CAPABILITY_IAM CAPABILITY_AUTO_EXPAND \
      --role-arn $CF_ROLE_ARN \
@@ -418,7 +321,7 @@ Choose your deployment option based on your infrastructure needs:
    echo "Template: quickstart-github-enterprise.template"
    ```
 
-### Step 6: Monitor Deployment Progress
+### Step 5: Monitor Deployment Progress
 
 1. **Monitor Stack Creation**:
    ```bash
@@ -463,7 +366,7 @@ Choose your deployment option based on your infrastructure needs:
      --output table
    ```
 
-### Step 7: Retrieve Deployment Information
+### Step 6: Retrieve Deployment Information
 
 1. **Get GitHub Enterprise Server Details**:
    ```bash
@@ -541,19 +444,14 @@ Choose your deployment option based on your infrastructure needs:
 | Parameter | Description | Example |
 |-----------|-------------|---------|
 | `KeyPairName` | EC2 Key Pair for SSH access | `github-enterprise-keypair` |
-| `LicenseLocation` | S3 bucket containing license | `your-ghe-license-bucket` |
-| `GHELicense` | License filename in S3 bucket | `github-enterprise.ghl` |
-| `SiteAdminUsername` | Initial admin username | `admin` |
-| `SiteAdminUserEmail` | Admin user email address | `admin@yourcompany.com` |
-| `SiteAdminUserPassword` | Admin user password | `SecurePassword123` |
-| `ManagementPassword` | Management console password | `ManagementPassword123` |
+| `GHEAMIID` | GitHub Enterprise Server AMI ID | `ami-1234567890abcdef0` |
+| `AccessCIDR` | IP range for access control | `10.0.0.0/8` |
 
 ### Network Parameters
 
 | Parameter | Description | Default | Example |
 |-----------|-------------|---------|---------|
 | `VPCCIDR` | VPC CIDR block (new VPC only) | `10.0.0.0/16` | `10.0.0.0/16` |
-| `AccessCIDR` | IP range for access control | - | `10.0.0.0/8` |
 | `VPCID` | Existing VPC ID (existing VPC only) | - | `vpc-12345678` |
 | `SubnetId` | Public subnet ID (existing VPC only) | - | `subnet-12345678` |
 
@@ -562,7 +460,7 @@ Choose your deployment option based on your infrastructure needs:
 | Parameter | Description | Default | Example |
 |-----------|-------------|---------|---------|
 | `HostedZoneDomain` | Route 53 hosted zone domain (optional) | `` | `example.com` |
-| `DNSRecordName` | DNS record name to create | `github` | `github`, `ghe`, `dev` |
+| `DNSRecordName` | DNS record name to create | `github-onprem` | `github`, `ghe`, `dev` |
 
 ### Server Configuration Parameters
 
@@ -573,12 +471,7 @@ Choose your deployment option based on your infrastructure needs:
 | `VolumeSize` | EBS volume size (GB) | `100` | `100-1000+` |
 | `ProvisionedIops` | IOPS for io1/io2 volumes | - | `100-20000` |
 
-### GitHub Configuration Parameters
 
-| Parameter | Description | Default |
-|-----------|-------------|---------|
-| `InitialOrganization` | Initial organization name | `initial-organization` |
-| `InitialRepository` | Initial repository name | `initial-repository` |
 
 ## Post-Deployment Configuration
 
@@ -604,13 +497,11 @@ After deployment completes successfully:
    # xdg-open $GHE_URL
    ```
 
-2. **Initial Web Login**:
+2. **Initial Web Setup**:
    - Navigate to the URL shown above in your browser
    - **Accept the security warning** (self-signed certificate initially)
-   - You should see the GitHub Enterprise login page
-   - Log in with your admin credentials:
-     - **Username**: Value of `$SITE_ADMIN_USERNAME`
-     - **Password**: Value of `$SITE_ADMIN_PASSWORD`
+   - You should see the GitHub Enterprise setup wizard
+   - Follow the setup wizard to configure your GitHub Enterprise Server
 
 3. **SSH Access** (for administration):
    ```bash
@@ -624,16 +515,17 @@ After deployment completes successfully:
 4. **Management Console Access**:
    ```bash
    echo "GitHub Enterprise Management Console: https://$GHE_PUBLIC_IP:8443"
-   echo "Management Password: [Use the ManagementPassword you set]"
+   echo "Set your management password during initial setup"
    ```
 
 ### 2. Initial Setup
 
-The QuickStart automatically configures:
-- ✅ GitHub Enterprise Server license installation
-- ✅ Initial admin user creation
-- ✅ Initial organization and repository setup
-- ✅ Basic security configuration
+The QuickStart provides:
+- ✅ EC2 instance with GitHub Enterprise Server AMI
+- ✅ Networking and security group configuration
+- ✅ EBS storage with encryption
+- ✅ Optional DNS configuration
+- ✅ CloudWatch monitoring and recovery
 
 ### 3. Additional Configuration
 
@@ -686,20 +578,11 @@ The deployment opens these ports:
    - Verify all required parameters are provided
    - Ensure IAM permissions are sufficient
 
-2. **License Upload Fails**:
-   - Verify S3 bucket permissions
-   - Check license file format (.ghl)
-   - Ensure bucket and license file names match parameters
 
-3. **Instance Not Accessible**:
+2. **Instance Not Accessible**:
    - Check security group rules
    - Verify AccessCIDR parameter
    - Confirm Elastic IP attachment
-
-4. **GitHub Enterprise Setup Fails**:
-   - SSH to instance and check `/var/log/cloud-init-output.log`
-   - Verify license file validity
-   - Check network connectivity to GitHub.com
 
 ### Getting Support
 
@@ -722,7 +605,6 @@ To remove all deployed resources safely:
 # Export important information
 echo "Stack Name: $STACK_NAME"
 echo "Key Pair Name: $KEY_PAIR_NAME"
-echo "License Bucket: $LICENSE_BUCKET"
 echo "Templates Bucket: $TEMPLATES_BUCKET"
 echo "Secrets Manager Key: github-enterprise/ssh-key/$KEY_PAIR_NAME"
 ```
@@ -749,10 +631,7 @@ aws secretsmanager delete-secret \
   --force-delete-without-recovery
 echo "SSH key deleted from Secrets Manager"
 
-# Delete S3 buckets and contents (be careful!)
-aws s3 rm s3://$LICENSE_BUCKET --recursive
-aws s3 rb s3://$LICENSE_BUCKET
-echo "S3 license bucket deleted: $LICENSE_BUCKET"
+
 
 # Delete templates bucket (if you created a custom one)
 if [ "$TEMPLATES_BUCKET" != "aws-quickstart" ]; then
@@ -777,8 +656,7 @@ aws cloudformation describe-stacks --stack-name $STACK_NAME --role-arn $CF_ROLE_
 # Verify key pair is deleted
 aws ec2 describe-key-pairs --key-names $KEY_PAIR_NAME 2>&1 | grep -q "InvalidKeyPair.NotFound" && echo "✓ Key pair deleted" || echo "✗ Key pair still exists"
 
-# Verify S3 buckets are deleted
-aws s3 ls s3://$LICENSE_BUCKET 2>&1 | grep -q "NoSuchBucket" && echo "✓ S3 license bucket deleted" || echo "✗ S3 license bucket still exists"
+
 
 if [ "$TEMPLATES_BUCKET" != "aws-quickstart" ]; then
   aws s3 ls s3://$TEMPLATES_BUCKET 2>&1 | grep -q "NoSuchBucket" && echo "✓ S3 templates bucket deleted" || echo "✗ S3 templates bucket still exists"
