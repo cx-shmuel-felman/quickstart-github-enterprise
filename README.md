@@ -227,7 +227,6 @@ GitHub Enterprise Server AMIs are available in the following AWS regions:
    if [[ -z "$GHE_AMI_ID" ]]; then
      echo "ERROR: No AMI found for GitHub Enterprise Server version $GHES_VERSION, those are the available AMIs:"
      echo "$amis_list"
-     exit 1
    fi
 
    echo "Selected AMI for GitHub Enterprise Server $GHES_VERSION: $GHE_AMI_ID"
