@@ -85,12 +85,21 @@ GitHub Enterprise Server AMIs are available in the following AWS regions:
    echo "Using AWS Region: $AWS_REGION"
 
    # Set the CloudFormation role to assume for deployments
-   export CF_ROLE_ARN="arn:aws:iam::$(aws sts get-caller-identity --query Account --output text):role/CloudFormation-Role"
+   # Get AWS Account ID
+   export AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
 
-   # Verify that the role exists
-   aws iam get-role --role-name CloudFormation-Role &>/dev/null && \
-     echo "✅ CloudFormation role exists: $CF_ROLE_ARN" || \
-     echo "❌ CloudFormation role does not exist, please create it first"
+   # Validate that AWS_ACCOUNT_ID is not empty
+   if [[ -z "$AWS_ACCOUNT_ID" ]]; then
+     echo "❌ Unable to retrieve AWS Account ID. Please check your AWS CLI configuration."
+   else
+     export CF_ROLE_ARN="arn:aws:iam::${AWS_ACCOUNT_ID}:role/CloudFormation-Role"
+     # Verify that the role exists
+     aws iam get-role --role-name CloudFormation-Role &>/dev/null && \
+       echo "✅ CloudFormation role exists: $CF_ROLE_ARN" || \
+       echo "❌ CloudFormation role does not exist, please create it first"
+   fi
+
+
    ```
 
 2. **Get Your Public IP for Security**:
