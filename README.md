@@ -98,8 +98,6 @@ GitHub Enterprise Server AMIs are available in the following AWS regions:
        echo "✅ CloudFormation role exists: $CF_ROLE_ARN" || \
        echo "❌ CloudFormation role does not exist, please create it first"
    fi
-
-
    ```
 
 2. **Get Your Public IP for Security**:
