@@ -213,7 +213,7 @@ GitHub Enterprise Server AMIs are available in the following AWS regions:
 
 2. **Retrieve GitHub Enterprise Server ami**:
    ```bash
-   export GHES_VERSION="3.8.18" #Change if needs to use another version or if this version not exist anymore
+   export GHES_VERSION="3.17.5" #Change if needs to use another version or if this version not exist anymore
 
    amis_list=$(aws ec2 describe-images \
      --region $AWS_REGION \
