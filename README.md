@@ -334,7 +334,6 @@ Choose your deployment option based on your infrastructure needs:
    # Check stack status
    aws cloudformation describe-stacks \
      --stack-name $STACK_NAME \
-     --role-arn $CF_ROLE_ARN \
      --query 'Stacks[0].StackStatus' \
      --output text
 
